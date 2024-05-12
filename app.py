@@ -1,18 +1,130 @@
 import customtkinter as CTk
+from Coder import Coder
+from Coder import generate_key
+
+
+class MyCheckboxFrame(CTk.CTkFrame):
+    def __init__(self, master, values):
+        super().__init__(master)
+        self.values = values
+        self.checkboxes = []
+
+        for i, value in enumerate(self.values):
+            checkbox = CTk.CTkCheckBox(self, text=value)
+            checkbox.grid(row=i, column=0, padx=10, pady=(10, 0), sticky="w")
+            self.checkboxes.append(checkbox)
+
+    def get(self):
+        checked_checkboxes = []
+        for checkbox in self.checkboxes:
+            if checkbox.get() == 1:
+                checked_checkboxes.append(checkbox.cget("text"))
+        return checked_checkboxes
 
 class App(CTk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.geometry("400x400")
+        super().__init__()
+        # self.grid_rowconfigure(0, weight=1)  # configure grid system
+        # self.grid_columnconfigure(0, weight=1)
+        #
+        # self.frame_1 = CTk.CTkFrame(master=self)
+        # self.frame_1.grid(sticky='nsew')
+        #
+        # self.textbox = CTk.CTkTextbox(master=self.frame_1, width=400, corner_radius=0)
+        # self.textbox.grid(row=0, column=0, sticky="nsew")
+        # self.textbox.insert("0.0", "Some example text!\n" * 50)
+
+        self.coder = Coder()
+
+        self.geometry("800x400")
         self.title("EN/DE/CODER")
         self.resizable(False, False)
 
-        self.password_frame = CTk.CTkFrame(master=self, fg_color="transparent")
-        self.password_frame.grid(row=1, column=0, padx=(20,20), sticky="nseew")
+        self.grid_columnconfigure((0, 1, 2), weight=1)
+        self.grid_rowconfigure(0, weight=1)
 
-        self.entry_password = CTk.CTkEntry(master=self, width=300)
-        self.entry_password.grid(row=0, column=0, padx=(0, 20))
+        self.left_frame = CTk.CTkFrame(master=self)
+        self.left_frame.grid(row=0, column=0, padx=4, pady=4)
+
+        self.mid_frame = CTk.CTkFrame(master=self)
+        self.mid_frame.grid(row=0, column=1, pady=20)
+
+        self.right_frame = CTk.CTkFrame(master=self)
+        self.right_frame.grid(row=0, column=2, padx=4, pady=4)
+
+
+        self.phrase = CTk.CTkTextbox(master=self.left_frame)
+        self.phrase.insert("0.0", "ваша фраза для шифрования")
+        self.phrase.grid(sticky='nsew')
+
+        self.btn_code = CTk.CTkButton(master=self.mid_frame, text="-> Зашифровать ->", command=self._validate_and_code)
+        self.btn_code.grid(row=1, column=0, sticky='nsew')
+
+        self.key = CTk.CTkTextbox(master=self.mid_frame)
+        self.key.grid(row=2, column=0, sticky='nsew')
+        self.key.insert("0.0", "ваш ключ шифрования")
+
+        self.btn_code = CTk.CTkButton(master=self.mid_frame, text="<- Расшифровать <-", command=self._validate_and_decode)
+        self.btn_code.grid(row=3, column=0, sticky='nsew')
+
+
+        self.code = CTk.CTkTextbox(master=self.right_frame)
+        self.code.insert("0.0", "ваш шифр")
+        self.code.grid(row=0, column=0, sticky='nsew')
+
+        self.btn_generate_key = CTk.CTkButton(master=self, text="-- Сгенерировать ключ --", width=100, command=self._generate_key)
+        self.btn_generate_key.grid(row=1, column=1)
+
+    def _generate_key(self):
+        key = generate_key()
+        self.key.delete("0.0", "end")
+        self.key.insert("0.0", key)
+
+    def _get_phrase(self) -> str:
+        return self.phrase.get("0.0", "end")
+
+    def _get_key(self) -> str:
+        return self.key.get("0.0", "end")
+
+    def _get_code(self) -> str:
+        return self.code.get("0.0", "end")
+
+
+    def _set_phrase(self, text: str):
+        self.phrase.delete("0.0", "end")
+        self.phrase.insert("0.0", text)
+
+    def _set_key(self, text: str):
+        self.key.delete("0.0", "end")
+        self.key.insert("0.0", text)
+
+    def _set_code(self, text: str):
+        self.code.delete("0.0", "end")
+        self.code.insert("0.0", text)
+
+    def _validate(self, text: str) -> bool:
+        return len(text) > 0 and text != "ваш ключ шифрования" and text != "ваша фраза для шифрования"
+
+    def _validate_and_code(self):
+        key = self._get_key()
+        phrase = self._get_phrase()
+        if self._validate(phrase) and self._validate(key):
+            code = self.coder.encode(phrase, key)
+            print(code)
+            self._set_code(code)
+
+    def _validate_and_decode(self):
+        key = self._get_key()
+        decode = self._get_code()
+
+        if self._validate(decode) and self._validate(key):
+            decode = self.coder.decode(decode, key)
+            print(decode)
+            self._set_phrase(decode)
+
+
 
 if __name__ == "__main__":
     app = App()
