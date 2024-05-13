@@ -3,7 +3,7 @@ from functools import reduce
 from collections import Counter
 from typing import List
 
-from main import Coder
+from Coder import Coder
 
 freq_table = {
     'а': 0.0801, 'б': 0.0159,
