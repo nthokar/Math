@@ -32,16 +32,16 @@ class Coder:
 
     def __init__(self):
         self.replace_map = {'ё': 'e', ' ': ''}
-        self.preprocessing = [str.lower]
+        self.__preprocessing = [str.lower]
 
     def encode(self, phrase: str, key: str):
-        phrase = self._preprocessing(phrase)
-        key = self._preprocessing(key)
+        phrase = self.preprocessing(phrase)
+        key = self.preprocessing(key)
         return self._encode(phrase, key)
 
     def decode(self, phrase: str, key: str):
-        phrase = self._preprocessing(phrase)
-        key = self._preprocessing(key)
+        phrase = self.preprocessing(phrase)
+        key = self.preprocessing(key)
         return self._decode(phrase, key)
 
 
@@ -51,7 +51,7 @@ class Coder:
             text = text.replace(key, self.replace_map[key])
         return text
 
-    def _preprocessing(self, text: str) -> str:
+    def preprocessing(self, text: str) -> str:
         # Заменяем символы по предустановленным правилам
         text = self._replace(text)
 
@@ -91,12 +91,14 @@ class Coder:
 
 import random
 def generate_key() -> str:
-    length = random.randint(10, 30)
+    length = random.randint(5, 10)
     key = ''
     for i in range(length):
         key += Alphabet.alphabet[random.randint(0, len(Alphabet.alphabet) - 1)]
     return key
 
 if __name__ == "__main__":
-    print(generate_key())
+    ls = [('x', 0)]
+    ls = list(map(lambda x: x[0], ls))
+    print(ls)
 

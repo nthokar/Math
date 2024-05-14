@@ -1,18 +1,16 @@
 import customtkinter as CTk
 from Coder import Coder
 from Coder import generate_key
+from hacker import hack_key
 
 
-class MyCheckboxFrame(CTk.CTkFrame):
-    def __init__(self, master, values):
+class LeftFrame(CTk.CTkFrame):
+    def __init__(self, master):
         super().__init__(master)
-        self.values = values
-        self.checkboxes = []
 
-        for i, value in enumerate(self.values):
-            checkbox = CTk.CTkCheckBox(self, text=value)
-            checkbox.grid(row=i, column=0, padx=10, pady=(10, 0), sticky="w")
-            self.checkboxes.append(checkbox)
+        self.phrase = CTk.CTkTextbox(master=self)
+        self.phrase.grid(sticky='nsew')
+        self.phrase.insert("0.0", "ваша фраза для шифрования")
 
     def get(self):
         checked_checkboxes = []
@@ -38,9 +36,9 @@ class App(CTk.CTk):
 
         self.coder = Coder()
 
-        self.geometry("800x400")
+        self.geometry("900x400")
         self.title("EN/DE/CODER")
-        self.resizable(False, False)
+        #self.resizable(False, False)
 
         self.grid_columnconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -49,15 +47,16 @@ class App(CTk.CTk):
         self.left_frame.grid(row=0, column=0, padx=4, pady=4)
 
         self.mid_frame = CTk.CTkFrame(master=self)
-        self.mid_frame.grid(row=0, column=1, pady=20)
+        self.mid_frame.grid(row=0, column=1, pady=4)
 
         self.right_frame = CTk.CTkFrame(master=self)
         self.right_frame.grid(row=0, column=2, padx=4, pady=4)
 
 
         self.phrase = CTk.CTkTextbox(master=self.left_frame)
-        self.phrase.insert("0.0", "ваша фраза для шифрования")
         self.phrase.grid(sticky='nsew')
+        self.phrase.insert("0.0", "ваша фраза для шифрования")
+
 
         self.btn_code = CTk.CTkButton(master=self.mid_frame, text="-> Зашифровать ->", command=self._validate_and_code)
         self.btn_code.grid(row=1, column=0, sticky='nsew')
@@ -66,16 +65,34 @@ class App(CTk.CTk):
         self.key.grid(row=2, column=0, sticky='nsew')
         self.key.insert("0.0", "ваш ключ шифрования")
 
+
+        self.btn_generate_key = CTk.CTkButton(master=self.mid_frame, text="-- Сгенерировать ключ --", command=self._generate_key)
+        self.btn_generate_key.grid(row=3, column=0, pady=4, sticky='nsew')
+
         self.btn_code = CTk.CTkButton(master=self.mid_frame, text="<- Расшифровать <-", command=self._validate_and_decode)
-        self.btn_code.grid(row=3, column=0, sticky='nsew')
+        self.btn_code.grid(row=4, column=0, sticky='nsew')
 
 
         self.code = CTk.CTkTextbox(master=self.right_frame)
         self.code.insert("0.0", "ваш шифр")
         self.code.grid(row=0, column=0, sticky='nsew')
 
-        self.btn_generate_key = CTk.CTkButton(master=self, text="-- Сгенерировать ключ --", width=100, command=self._generate_key)
-        self.btn_generate_key.grid(row=1, column=1)
+        self.btn_hack = CTk.CTkButton(master=self.right_frame, text="-- Взлом без ключа --", command=self._hack_key)
+        self.btn_hack.grid(row=1, column=0, sticky='nsew')
+
+    def _hack_key(self):
+        code = self._get_code()
+        code = self.coder.preprocessing(code)
+        keys = hack_key(code)
+        keys = list(map(lambda x: x[0], keys))
+
+        def combobox_callback(choice):
+            print("combobox dropdown clicked:", choice)
+            self._set_key(choice)
+
+        self.combo_keys = CTk.CTkComboBox(self, values=keys, command=combobox_callback)
+        self.combo_keys.grid(row=1, column=1)
+
 
     def _generate_key(self):
         key = generate_key()
