@@ -23,30 +23,32 @@ freq_table = {
     'ю': 0.0064, 'я': 0.0201
 }
 
-def __find_key_len(message: str, replicas_pos: dict) -> int:
+def __find_nod(message: str, replicas_pos: dict) -> int:
     nod = -1
     ranges = _find_ranges(replicas_pos)
     if (len(ranges) != 0):
         nod = reduce(gcd, ranges)
+
+    print(f"rep{replicas_pos} \n {nod}")
     return nod
 
 def _find_key_len(message: str, sub_str_len:int) -> int:
     replicas_pos = find_replicas_pos(message, sub_str_len)
-    return __find_key_len(message, replicas_pos)
+    return __find_nod(message, replicas_pos)
 
 
 def find_key_len(message: str) -> int:
     tries = []
     for i in range(2, len(message)):
         nod = _find_key_len(message, i)
-        if nod > 1:
+        if nod >= i:
             return nod
-        if nod == 1:
+        elif nod >= 1:
             tries.append(i)
     print(tries)
-    return _xd(message, tries)
+    return _find_without_phantoms(message, tries)
 
-def _xd(message: str, sub_str_len_tries: int) -> int:
+def _find_without_phantoms(message: str, sub_str_len_tries: int) -> int:
     min = float('inf')
     for i in sub_str_len_tries:
         replicas = find_replicas_pos(message, i)
@@ -60,12 +62,10 @@ def _xd(message: str, sub_str_len_tries: int) -> int:
                 k_ch = j_str[k]
                 if k_ch == '1':
                     replicas_tmp.update({keys[k]: replicas[keys[k]]})
-            nod = __find_key_len(message, replicas_tmp)
+            nod = __find_nod(message, replicas_tmp)
             if nod > 1 and min > nod:
                 min = nod
                 print(nod)
-
-
     return min
 
 def find_replicas_pos(message: str, sub_str_len: int) -> dict:
@@ -91,7 +91,6 @@ def __find_ranges(ls: list):
         ranges.append(_range)
     return ranges
 
-5^13
 def _find_ranges(dct: dict):
     ranges = []
     for key in dct.keys():
@@ -137,8 +136,9 @@ def __get_key(loc_freq_table: List[dict]) -> str:
     print(res)
     return res
 
-def __get_key_2(loc_freq_table: List[dict]) -> List[tuple]:
+def __get_posible_keys(loc_freq_table: List[dict]) -> List[tuple]:
     res = ''
+    #колличество инвириантов для каждой буквы
     count = 3
     ls_full = []
     for i_1 in range(len(loc_freq_table)):
@@ -154,22 +154,18 @@ def __get_key_2(loc_freq_table: List[dict]) -> List[tuple]:
         ls_ch = ls_ch[:count]
         ls_full.append(ls_ch)
     print(res)
-    plain_list = []
-    # for i in range(len(ls_full)):
-    #     for j in range(len(i)):
-    #         plain_list.append()
-    fullly = ttt(ls_full, 0)
+    fullly = bruteforce_all_possible_keys(ls_full, 0)
     fullly = sorted(fullly, key=lambda x: x[1])
     return fullly[:count]
 
 
-def ttt(table: List[dict], depth: int) -> List[tuple]:
+def bruteforce_all_possible_keys(table: List[dict], depth: int) -> List[tuple]:
     result = []
     if depth >= len(table):
         return [('', 0)]
     place = table[depth]
     for letter in place:
-        sub = ttt(table, depth+1)
+        sub = bruteforce_all_possible_keys(table, depth + 1)
         for sub_word in sub:
             result.append((letter[0] + sub_word[0], sub_word[1] + letter[1]))
     return result
@@ -186,10 +182,10 @@ def hack(message: str) -> str:
 
 def hack_key(message: str) -> List[tuple]:
     key_len = find_key_len(message)
+    print(key_len)
     loc_freq_table = __get_loc_freq_table(message, key_len)
-    coder = Coder()
-    return __get_key_2(loc_freq_table)
-
+    return __get_posible_keys(loc_freq_table)
+    #return [__get_key(loc_freq_table)]
 
 if __name__ == "__main__":
     print(hack("\u043f\u0434\u0435\u0432\u043d\u0441\u044e\u0448\u0441\u043d\u044e\u044c\u0445\u0430\u0431\u0443\u0442\u0440\u044f\u0431\u0431\u044a\u0449\u0432\u0440\u044d\u043d\u0442\u0447\u044d\u0448\u0448\u0431\u0445\u0442\u044b\u043c\u0435\u0443\u0430\u044e\u044a\u0446\u0445\u043b\u043e\u0434\u0443\u044e\u0444\u0449\u0442\u044e\u044d\u0430\u044b\u043b\u0436\u043b\u044a\u044b\u0438\u0446\u043a\u044d\u043e\u0441\u0438\u0440\u044f\u043f\u043d\u0437\u044b\u043d\u0441\u043d\u043c\u043b\u0435\u044c\u0438\u0441\u043f\u044c\u0449\u0442\u0442\u043d\u0445\u044a\u043a\u0448\u0442\u0447\u043d\u043f\u044d\u0438\u0432\u0430\u0445\u044f\u0446\u0441\u043c\u0443\u0441\u044f\u044b\u0440\u043e\u0441\u0449\u0432\u0440\u044a\u043d\u044a\u043c\u0445\u0430\u0437\u0442\u0446\u0434\u043c\u0440\u043a\u044b\u043b\u044c\u0442\u043b\u0446\u043e\u044a\u043d\u0447\u0447\u0444\u044c\u0442\u0440\u044d\u0435\u0444\u0447\u0449\u0433\u044e\u044c\u0443\u0446\u0445\u0443\u043d\u0445\u0445\u0446\u0437\u0448\u043f\u043d\u044e\u0449\u0448\u0434\u043f\u0445\u0441\u0432\u0430\u0437\u0431\u044a\u0449\u0447\u0445\u0449\u043d\u043f\u044c\u0449\u0442\u0442\u043d\u0445\u044a\u043a\u0448\u0442\u044a\u043d\u043f\u0430\u0444\u043b\u0437\u0440\u0448\u0443\u0433\u0436\u044e\u0441\u044f\u0442\u044d\u044f\u0448\u044a\u043e\u0444\u0441\u0435\u0447\u044c\u044c\u044f\u0442\u0444\u0440\u0430\u0446\u044e\u043f\u0430\u044b\u0436\u044d\u043f\u0447\u0430\u0431\u043e\u043a\u0445\u044d\u0434\u0438\u044c\u0447\u0440\u0440\u0431\u0449\u043c\u0438\u0445\u0449\u0432\u043a\u043d\u0438\u0446\u0442\u0442\u0447\u044a\u043b\u0441\u044e\u044e\u0447\u0430\u0442\u044d\u0432\u0432\u044b\u0441\u0439\u044c\u0449\u043a\u0430\u0445\u0444\u0434\u0448\u043b\u043d\u0440\u0448\u043d\u0434\u0442\u0445\u0438\u044c\u0442\u043a\u0434\u044b\u044d\u0430\u0432\u0445\u0446\u0434\u0442\u0432\u0435\u0431\u0447\u0448\u0440\u0442\u0448\u0444\u044e\u044d\u0441\u0442\u0430\u0443\u044e\u044e\u0447\u0440\u0440\u0431\u0440\u0438\u043d\u044f\u0435\u044a\u0447\u044f\u043e\u0430\u0449\u0435\u0438\u0442\u043a\u0431\u0433\u0441\u043a\u0434\u0448\u044d\u0440\u0440\u0443\u0435\u0434\u0436\u044c\u044f\u0442\u0435\u043d\u0436\u044a\u0449\u0432\u0440\u044a\u0442\u0430\u0446\u044d\u0435\u044a\u044e\u0447\u0447\u043f\u044c\u043b\u0448\u0447\u0440\u0440\u0431\u043f\u0435\u0449\u044e\u0447\u0444\u0442\u044d\u0435\u044b\u0439\u0442\u0430\u044b\u0446\u0443\u0437\u043d\u043e\u044f\u0435\u0444\u0435\u0443\u044b\u0439\u044d\u0442\u0448\u0430\u0430\u043d\u0437\u044f\u043a\u043f\u043b\u0448\u044a\u043a\u0433\u0448\u0449\u0431\u0439\u0442\u0442\u044a\u0439\u0443\u043e\u044d\u0445\u0446\u0431\u0448\u0446\u044c\u0447\u044b\u0437\u0442\u0445\u044c\u044f\u0445\u0441\u043d\u044f\u0448\u0441\u0434\u043b\u044f\u0443\u043a\u0442\u044f\u0440\u0442\u0445\u043b\u0447\u0447\u0440\u0440\u0440\u044f\u043a\u0430\u044a\u0440\u0442\u0448\u0434\u043a\u0433\u0444\u0443\u0431\u0433\u0441\u043a\u0434\u0447\u0440\u0432\u0447\u0448\u0435\u044e\u0435\u043d\u0430\u0445\u0449\u0430\u044e\u0447\u0449\u0442\u0440\u0447\u043d\u0447\u044b\u0443\u0441\u0432\u0442\u0441\u043d\u044d\u0441\u0435\u044e\u044f\u0442\u0430\u044b\u043a\u0442\u0431\u043c\u043f\u044c\u0445\u043b\u0441\u0431\u0430\u0446\u044a\u044b\u044d\u0435\u044c\u044b\u0439\u044f\u0448\u044b\u0430\u0447\u044b\u0437\u0430\u043d\u0449\u043a\u044e\u0441\u0435\u044a\u0445\u0443\u043e\u0444\u044a\u0443\u0432\u043a\u0442\u043e\u0442\u044b\u0438\u0430\u0432\u0443\u0444\u0430\u043e\u0440\u0430\u0444\u0448\u043e\u0432\u043d\u0443\u044f\u0442\u043f\u0435\u0449\u044e\u0447\u0444\u0442\u044d\u0435\u044b\u0439\u0442\u0430\u0447\u0440\u043f\u044e\u0441\u0439\u0442\u0438\u044d\u0441\u043f\u043f\u043c\u044d\u0448\u0447\u0443\u044e\u0441\u0442\u0442\u0444\u0449\u0438\u0435\u044c\u0445\u0442\u0444\u044d\u0438\u0437\u0442\u0446\u044c\u0448\u0440\u043f\u0430\u0445\u0441\u0447\u0447\u0440\u043d\u0448\u0442\u0439\u0430\u043c\u0449\u043b\u043c\u044a\u0443\u0449\u043a\u044d\u0440\u0433\u0441\u0442\u044a\u044c\u0440\u043b\u043c\u044a\u0443"))

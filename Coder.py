@@ -59,7 +59,7 @@ class Coder:
         text = text.lower()
 
         # Оставляем только циферки и букавки
-        text = ''.join(e for e in text if e.isalnum())
+        text = ''.join(e for e in text if e in Alphabet.alphabet)
 
         return text
 
