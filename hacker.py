@@ -84,6 +84,7 @@ def find_replicas_pos(message: str, sub_str_len: int) -> dict:
                         replicas_pos.update({repeat: [i, j]})
 
     return replicas_pos
+
 def __find_ranges(ls: list):
     ranges = []
     for i in range(1, len(ls), 2):

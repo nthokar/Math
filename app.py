@@ -5,43 +5,50 @@ from Coder import Alphabet
 from hacker import hack_key
 from CTkMessagebox import CTkMessagebox
 
-
-class LeftFrame(CTk.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
-
-        self.phrase = CTk.CTkTextbox(master=self)
-        self.phrase.grid(sticky='nsew')
-        self.phrase.insert("0.0", "ваша фраза для шифрования")
-
-    def get(self):
-        checked_checkboxes = []
-        for checkbox in self.checkboxes:
-            if checkbox.get() == 1:
-                checked_checkboxes.append(checkbox.cget("text"))
-        return checked_checkboxes
-
 class App(CTk.CTk):
     def __init__(self):
         super().__init__()
 
-        super().__init__()
-        # self.grid_rowconfigure(0, weight=1)  # configure grid system
-        # self.grid_columnconfigure(0, weight=1)
-        #
-        # self.frame_1 = CTk.CTkFrame(master=self)
-        # self.frame_1.grid(sticky='nsew')
-        #
-        # self.textbox = CTk.CTkTextbox(master=self.frame_1, width=400, corner_radius=0)
-        # self.textbox.grid(row=0, column=0, sticky="nsew")
-        # self.textbox.insert("0.0", "Some example text!\n" * 50)
-
         self.coder = Coder()
-        my_font = CTk.CTkFont(family="Ubuntu", size=14)
+        self.my_font = CTk.CTkFont(family="Ubuntu", size=14)
 
-        self.geometry("1840x800")
+        self.geometry("1200x800")
         self.title("EN/DE/CODER")
         self.resizable(False, False)
+        self.cur_hack_frame=False
+        self._decode_encode()
+
+    def _hack(self):
+        self.mid_frame.destroy()
+        self.left_frame.destroy()
+        self.right_frame.destroy()
+        self.cur_hack_key=""
+        self.grid_columnconfigure((0, 1), weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        self.left_frame = CTk.CTkFrame(master=self)
+        self.left_frame.grid(row=0, column=0, padx=4, pady=4)
+        self.right_frame = CTk.CTkFrame(master=self)
+        self.right_frame.grid(row=0, column=1, padx=4, pady=4)
+
+        self.btn_decode_encode = CTk.CTkButton(master=self.left_frame, text="<-Кодирование/декодирование",
+                                               command=self.__code_decode_switch, font=self.my_font)
+        self.btn_decode_encode.grid(row=0, column=0, sticky='nsew')
+
+        self.phrase = CTk.CTkTextbox(master=self.left_frame, width=600, height=600, font=self.my_font)
+        self.phrase.grid(sticky='nsew')
+        self.phrase.insert("0.0", "Взломанное сообщение")
+
+        self.code = CTk.CTkTextbox(master=self.right_frame, width=600, height=600, font=self.my_font)
+        self.code.insert("0.0", "Шифрованное сообщение")
+        self.code.grid(row=0, column=0, sticky='nsew')
+
+        self.btn_decode_encode = CTk.CTkButton(master=self.right_frame, text="--| Взлом |--",
+                                      command=self._hack_key, font=self.my_font)
+        self.btn_decode_encode.grid(row=1, column=0, sticky='nsew')
+        self.update()
+
+    def _decode_encode(self):
 
         self.grid_columnconfigure((0, 1, 2), weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -55,33 +62,49 @@ class App(CTk.CTk):
         self.right_frame = CTk.CTkFrame(master=self)
         self.right_frame.grid(row=0, column=2, padx=4, pady=4)
 
+        self.btn_hack_frame = CTk.CTkButton(master=self.left_frame, text="<-Взлом",
+                                            command=self.__hack_switch, font=self.my_font)
+        self.btn_hack_frame.grid(row=1, column=0, sticky="nsew")
 
-        self.phrase = CTk.CTkTextbox(master=self.left_frame, width=600, height=600, font=my_font)
+        self.phrase = CTk.CTkTextbox(master=self.left_frame, width=600, height=600, font=self.my_font)
         self.phrase.grid(sticky='nsew')
         self.phrase.insert("0.0", "ваша фраза для шифрования")
 
-
-        self.btn_code = CTk.CTkButton(master=self.mid_frame, text="-> Зашифровать ->", command=self._validate_and_code, font=my_font)
+        self.btn_code = CTk.CTkButton(master=self.mid_frame, text="-> Зашифровать ->", command=self._validate_and_code,
+                                      font=self.my_font)
         self.btn_code.grid(row=1, column=0, sticky='nsew')
 
-        self.key = CTk.CTkTextbox(master=self.mid_frame, width=600, height=600, font=my_font)
+        self.key = CTk.CTkTextbox(master=self.mid_frame, width=600, height=600, font=self.my_font)
         self.key.grid(row=2, column=0, sticky='nsew')
         self.key.insert("0.0", "ваш ключ шифрования")
 
-
-        self.btn_generate_key = CTk.CTkButton(master=self.mid_frame, text="-- Сгенерировать ключ --", command=self._generate_key, font=my_font)
+        self.btn_generate_key = CTk.CTkButton(master=self.mid_frame, text="-- Сгенерировать ключ --",
+                                              command=self._generate_key, font=self.my_font)
         self.btn_generate_key.grid(row=3, column=0, pady=4, sticky='nsew')
 
-        self.btn_code = CTk.CTkButton(master=self.mid_frame, text="<- Расшифровать <-", command=self._validate_and_decode, font=my_font)
+        self.btn_code = CTk.CTkButton(master=self.mid_frame, text="<- Расшифровать <-",
+                                      command=self._validate_and_decode, font=self.my_font)
         self.btn_code.grid(row=4, column=0, sticky='nsew')
 
-
-        self.code = CTk.CTkTextbox(master=self.right_frame, width=600, height=600, font=my_font)
+        self.code = CTk.CTkTextbox(master=self.right_frame, width=600, height=600, font=self.my_font)
         self.code.insert("0.0", "ваш шифр")
         self.code.grid(row=0, column=0, sticky='nsew')
 
-        self.btn_hack = CTk.CTkButton(master=self.right_frame, text="--| Взлом |--", command=self._hack_key, font=my_font)
-        self.btn_hack.grid(row=1, column=0, sticky='nsew')
+        self.update()
+
+    def __hack_switch(self):
+        self.cur_hack_frame=True
+        self.left_frame.destroy()
+        self.mid_frame.destroy()
+        self.right_frame.destroy()
+        self._hack()
+
+    def __code_decode_switch(self):
+        self.cur_hack_frame=False
+        self.left_frame.destroy()
+        self.mid_frame.destroy()
+        self.right_frame.destroy()
+        self._decode_encode()
 
     def _hack_key(self):
         code = self._get_code()
@@ -90,16 +113,18 @@ class App(CTk.CTk):
             if not self.show_warning():
                 return
 
-
         code = self.coder.preprocessing(code)
         self._set_code(code)
 
         keys = hack_key(code)
         keys = list(map(lambda x: x[0], keys))
+        if(len(keys)>0):
+            self.cur_hack_key = keys[0]
 
+        self._set_phrase(self.coder.decode(self._get_code(),self.cur_hack_key))
         def combobox_callback(choice):
             print("combobox dropdown clicked:", choice)
-            self._set_key(choice)
+            self.cur_hack_key = choice
 
         self.combo_keys = CTk.CTkComboBox(self, values=keys, command=combobox_callback)
         self.combo_keys.grid(row=1, column=1)
@@ -194,9 +219,10 @@ class App(CTk.CTk):
                             icon="warning", option_1="Отмена", option_2="Убрать не подходящие символы")
 
         if msg.get() == "Убрать не подходящие символы":
-            key = self._get_key()
-            key = self.coder.preprocessing(key)
-            self._set_key(key)
+            if(not self.cur_hack_frame):
+                key = self._get_key()
+                key = self.coder.preprocessing(key)
+                self._set_key(key)
 
             code = self._get_code()
             code = self.coder.preprocessing(code)

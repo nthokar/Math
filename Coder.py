@@ -1,29 +1,3 @@
-# ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
-# АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя
-# _alphabet = "АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюя"
-#
-# matrxix = [[] for i in _alphabet]
-# print(matrxix)
-#
-# phrase = 'кто я'
-# phrase = ''.join(e for e in phrase if e.isalnum())
-# key = 'хз'
-#
-# count = 0
-#
-# code = ''
-# _start = ord(_alphabet[0])
-# print(_alphabet)
-#
-# for i in range(len(phrase)):
-#     key_letter_code = ord(key[i % len(key)]) - _start
-#     phrase_letter_code = ord(phrase[i]) - _start
-#
-#     print(f"{key_letter_code} {phrase_letter_code}")
-#     code += chr(_start + ((key_letter_code + phrase_letter_code) % len(_alphabet)))
-import random
-
-import pandas as pd
 class Alphabet:
     alphabet = 'абвгдежзийклмнопрстуфхцчшщъыьэюя'
     start = ord(alphabet[0])
@@ -31,7 +5,7 @@ class Alphabet:
 class Coder:
 
     def __init__(self):
-        self.replace_map = {'ё': 'e', ' ': ''}
+        self.replace_map = {'ё': 'e', ' ': '','\n':""}
         self.__preprocessing = [str.lower]
 
     def encode(self, phrase: str, key: str):
