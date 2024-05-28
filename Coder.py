@@ -5,7 +5,7 @@ class Alphabet:
 class Coder:
 
     def __init__(self):
-        self.replace_map = {'ё': 'e', ' ': '','\n':""}
+        self.replace_map = {'ё': 'е', ' ': '','\n':""}
         self.__preprocessing = [str.lower]
 
     def encode(self, phrase: str, key: str):
